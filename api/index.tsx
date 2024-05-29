@@ -3,88 +3,50 @@ import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
 import { neynar } from "frog/hubs";
 import { handle } from "frog/vercel";
-import Markdoc from "@markdoc/markdoc";
-import { html } from "./toHtml.js";
 
-// Uncomment to use Edge Runtime.
-// export const config = {
-//   runtime: 'edge',
-// }
+type State = {
+  page: number;
+};
 
-const pages = [
-  `
-# Header 1
-
-Page 1
-`,
-  `
-# Header 2
-
-Page 2
-`,
+const images: string[] = [
+  "/images/page1.png",
+  "/images/page2.png",
+  "/images/page3.png",
 ];
-
-function mdToHtml(md: string) {
-  const ast = Markdoc.parse(md);
-  const content = Markdoc.transform(ast);
-  const processed = Markdoc.renderers
-    .html(content)
-    .replace("<article>", "")
-    .replace("</article>", "");
-
-  console.log("processed", processed);
-
-  return html(processed);
-}
-
-let final = mdToHtml(pages[0]);
-
-console.log("final", JSON.stringify(final));
-
-const h1 = (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      flexWrap: "nowrap",
-      height: "100%",
-      justifyContent: "center",
-      textAlign: "center",
-      width: "100%",
-    }}
-  >
-    <h1>Header 1</h1>
-    <p>
-      This is a <strong>paragraph</strong>.
-    </p>
-  </div>
-);
-
-console.log("h1", JSON.stringify(h1));
 
 const isLocal = import.meta.env?.VITE_HOST === "localhost";
 
 export const app = isLocal
-  ? new Frog({
+  ? new Frog<{ State: State }>({
       assetsPath: "/",
       basePath: "/api",
+      initialState: {
+        page: 0,
+      },
     })
-  : new Frog({
+  : new Frog<{ State: State }>({
       assetsPath: "/",
       basePath: "/api",
       hub: neynar({ apiKey: import.meta.env?.VITE_NEYNAR_KEY }),
+      initialState: {
+        page: 0,
+      },
     });
 
 app.frame("/", async (c) => {
-  const { buttonValue } = c;
-  const index = buttonValue === "page2" ? 1 : 0;
-  const content = mdToHtml(pages[index]);
+  const { buttonValue, deriveState } = c;
+  const state = deriveState((previousState) => {
+    if (buttonValue === "inc" && previousState.page < images.length - 1)
+      previousState.page++;
+    if (buttonValue === "dec" && previousState.page) previousState.page--;
+  });
+  const content = images[state.page];
 
   return c.res({
-    image: content as any,
+    image: content,
     intents: [
-      <Button value="page1">Prev</Button>,
-      <Button value="page2">Next</Button>,
+      <Button value="dec">Prev</Button>,
+      <Button value="inc">Next</Button>,
     ],
   });
 });
