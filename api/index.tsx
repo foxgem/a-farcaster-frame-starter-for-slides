@@ -1,17 +1,19 @@
-import { Button, Frog } from "frog";
+import { Button, FrameContext, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
 import { neynar } from "frog/hubs";
 import { handle } from "frog/vercel";
-import pages from "../public/slides.json";
+import contents from "../public/contents.json";
 
 type State = {
   page: number;
+  currentSlide?: string;
 };
 
-const images: string[] = pages.pages;
+const CONTENT_BASE = "contents";
 
 const isLocal = import.meta.env?.VITE_HOST === "localhost";
+const slides: { [key: string]: string[] } = contents.contents;
 
 export const app = isLocal
   ? new Frog<{ State: State }>({
@@ -31,7 +33,38 @@ export const app = isLocal
     });
 
 app.frame("/", async (c) => {
+  return c.res({
+    action: "/submit",
+    image: "/contents/index.png",
+    intents: [
+      <TextInput placeholder="Enter a slide..." />,
+      <Button>Go</Button>,
+    ],
+  });
+});
+
+app.frame("/submit", async (c) => {
+  const { inputText, deriveState } = c;
+  let slide = inputText;
+  if (inputText) {
+    deriveState((previousState) => {
+      previousState.currentSlide = inputText;
+    });
+  } else {
+    slide = deriveState().currentSlide;
+  }
+
+  return await browseHandler(slide!, c);
+});
+
+app.frame("/:slide", async (c) => {
+  const slide = c.req.param("slide");
+  return await browseHandler(slide, c);
+});
+
+async function browseHandler(slide: string, c: FrameContext<any>) {
   const { buttonValue, deriveState } = c;
+  const images = slides[`${CONTENT_BASE}/${slide}`];
   const state = deriveState((previousState) => {
     if (buttonValue === "inc" && previousState.page < images.length - 1)
       previousState.page++;
@@ -44,9 +77,10 @@ app.frame("/", async (c) => {
     intents: [
       <Button value="dec">Prev</Button>,
       <Button value="inc">Next</Button>,
+      <Button action="/">Home</Button>,
     ],
   });
-});
+}
 
 // @ts-ignore
 const isEdgeFunction = typeof EdgeFunction !== "undefined";
