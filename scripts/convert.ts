@@ -3,6 +3,8 @@ import fs from "fs";
 
 const pageMap: { [key: string]: string } = {};
 
+fs.rmdirSync("public/images", { recursive: true });
+
 const promises = fs.readdirSync("contents").map(async (file) => {
   if (file.endsWith(".md")) {
     const fileName = `images/${file.replace(".md", ".png")}`;
