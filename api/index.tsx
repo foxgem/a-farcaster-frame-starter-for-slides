@@ -3,16 +3,13 @@ import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
 import { neynar } from "frog/hubs";
 import { handle } from "frog/vercel";
+import pages from "../public/slides.json";
 
 type State = {
   page: number;
 };
 
-const images: string[] = [
-  "/images/page1.png",
-  "/images/page2.png",
-  "/images/page3.png",
-];
+const images: string[] = pages.pages;
 
 const isLocal = import.meta.env?.VITE_HOST === "localhost";
 
