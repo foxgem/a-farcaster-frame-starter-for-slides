@@ -34,7 +34,9 @@ async function convertSingleDir(dir: string) {
     }
   });
 
-  contents[dir] = pages;
+  if (pages.length) {
+    contents[dir] = pages;
+  }
 }
 
 async function createIndexPage(slides: string[]) {
