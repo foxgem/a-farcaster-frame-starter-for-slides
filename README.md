@@ -51,4 +51,4 @@ This starter is using [mdimg](https://github.com/LolipopJ/mdimg) and the site bu
 
 ## Showcase
 
-Read this document in [this frame]().
+Read this document in [this frame](https://warpcast.com/foxgem/0xaebf8686).

@@ -1,9 +1,9 @@
 import { Button, FrameContext, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
-import { neynar, pinata } from "frog/hubs";
+import { pinata } from "frog/hubs";
 import { handle } from "frog/vercel";
-import contents from "../public/contents.json";
+import contents from "../public/contents.json" assert { type: "json" };
 
 type State = {
   page: number;
@@ -26,8 +26,7 @@ export const app = isLocal
   : new Frog<{ State: State }>({
       assetsPath: "/",
       basePath: "/api",
-      hub: neynar({ apiKey: import.meta.env?.VITE_NEYNAR_KEY }),
-      // hub: pinata(),
+      hub: pinata(),
       initialState: {
         page: 0,
       },
