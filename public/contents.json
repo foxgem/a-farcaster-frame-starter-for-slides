@@ -1,10 +1,13 @@
 {
   "contents": {
-    "contents/slide1": [
-      "/contents/slide1/page1.png",
-      "/contents/slide1/page2.png",
-      "/contents/slide1/page3.png",
-      "/contents/slide1/page4.png"
+    "contents/site": [
+      "/contents/site/01-site-org.png",
+      "/contents/site/02-customization.png"
+    ],
+    "contents/doc": [
+      "/contents/doc/01-what.png",
+      "/contents/doc/02-how.png",
+      "/contents/doc/03-known-issues.png"
     ]
   }
 }
