@@ -1,4 +1,4 @@
-## Known Issues
+# Known Issues
 
 To generate the images in markdown correctly:
 

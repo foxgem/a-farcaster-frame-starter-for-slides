@@ -1,7 +1,7 @@
 import { Button, FrameContext, Frog, TextInput } from "frog";
 import { devtools } from "frog/dev";
 import { serveStatic } from "frog/serve-static";
-import { neynar } from "frog/hubs";
+import { neynar, pinata } from "frog/hubs";
 import { handle } from "frog/vercel";
 import contents from "../public/contents.json";
 
@@ -27,6 +27,7 @@ export const app = isLocal
       assetsPath: "/",
       basePath: "/api",
       hub: neynar({ apiKey: import.meta.env?.VITE_NEYNAR_KEY }),
+      // hub: pinata(),
       initialState: {
         page: 0,
       },
@@ -49,6 +50,7 @@ app.frame("/submit", async (c) => {
   if (inputText) {
     deriveState((previousState) => {
       previousState.currentSlide = inputText;
+      previousState.page = 0;
     });
   } else {
     slide = deriveState().currentSlide;
@@ -59,6 +61,11 @@ app.frame("/submit", async (c) => {
 
 app.frame("/:slide", async (c) => {
   const slide = c.req.param("slide");
+  if (c.previousState.currentSlide !== slide) {
+    c.previousState.currentSlide = slide;
+    c.previousState.page = 0;
+  }
+
   return await browseHandler(slide, c);
 });
 
